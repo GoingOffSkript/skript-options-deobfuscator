@@ -7,9 +7,9 @@ const Patterns =
 {
     COMMENT: /(?:^|[^#])(#(?:$|[^#]).*)/,
 
-    SCOPE: /^(?<scope>\w+)/,
+    SCOPE: /^\s*(?<scope>\w+).*:\s*$/,
 
-    OPTIONS_KEY_DEFINITION:  /\s+(?<key>[^:]+):\s*(?<value>.+)/,
+    OPTIONS_KEY_DEFINITION:  /(?:(?: |\t)+)(?<key>[^:]+):(?: |\t)*(?<value>.+)/,
 
     INLINE_OPTIONS_PLACEHOLDERS: /\{@([^}]+)\}/g,
 

@@ -1,0 +1,11 @@
+* {
+    margin: 0;
+}
+
+textarea {
+    resize: none;
+}
+
+textarea:focus {
+    outline: 0;
+}
