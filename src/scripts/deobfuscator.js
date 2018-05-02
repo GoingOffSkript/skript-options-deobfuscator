@@ -1,15 +1,15 @@
 'use strict';
 
 // Skript Deobfuscator by RezzedUp
-// Tested in Chrome v66.0.3359.139 (Official Build) (64-bit)
+// Tested with Chrome v66.0.3359.139 (Official Build) (64-bit)
 
 const Patterns = 
 {
     COMMENT: /(?:^|[^#])(#(?:$|[^#]).*)/,
 
-    SCOPE: /^\s*(?<scope>\w+).*:\s*$/,
+    SCOPE: /^[\0\s]*(?<scope>\w+).*:\s*$/,
 
-    OPTIONS_KEY_DEFINITION:  /(?:(?: |\t)+)(?<key>[^:]+):(?: |\t)*(?<value>.+)/,
+    OPTIONS_KEY_DEFINITION: /(?:(?: |\t)+)(?<key>[^:]+):(?: |\t)*(?<value>.+)/,
 
     INLINE_OPTIONS_PLACEHOLDERS: /\{@([^}]+)\}/g,
 
@@ -22,7 +22,6 @@ const Patterns =
  */
 export const deobfuscate = (lines) => 
 {
-    console.log(`Called with line:\n${lines}`);
     let context = {scope: '', keys: {}};
     return lines.map(stripComments).map(line => determineScope(line, context)).filter(line => line && true);
 }
@@ -41,7 +40,7 @@ const stripComments = (line) => line.replace(Patterns.COMMENT, '');
 const determineScope = (line, context) =>
 {
     let match = line.match(Patterns.SCOPE);
-    if (match) { context.scope = match.groups.scope; }
+    if (match) { context.scope = match.groups.scope.toLowerCase(); }
 
     let isWithinOptions = context.scope === 'options';
     if (match) { return (isWithinOptions) ? null : line; }
