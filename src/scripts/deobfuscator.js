@@ -11,7 +11,7 @@ const Patterns =
 
     OPTIONS_KEY_DEFINITION:  /\s+(?<key>[^:]+):\s*(?<value>.+)/,
 
-    INLINE_OPTIONS_PLACEHOLDERS: /\{@(?<key>[^}]+)\}/g,
+    INLINE_OPTIONS_PLACEHOLDERS: /\{@([^}]+)\}/g,
 
     OPTIONS_PLACEHOLDER_KEY: /\{@(?<key>[^}]+)\}/
 }
@@ -24,7 +24,7 @@ export const deobfuscate = (lines) =>
 {
     console.log(`Called with line:\n${lines}`);
     let context = {scope: '', keys: {}};
-    return lines.map(stripComments).map(line => determineScope(line, context)).filter(line => typeof line === 'string');
+    return lines.map(stripComments).map(line => determineScope(line, context)).filter(line => line && true);
 }
 
 /**

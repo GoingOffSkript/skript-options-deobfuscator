@@ -17,8 +17,17 @@ command /wow:
 
 console.log(deobfuscate(demo.split('\n')));
 
-document.addEventListener('ready', () => {
-    
-});
+document.addEventListener('readystatechange', () => 
+{
+    if (document.readyState !== 'complete') { return; }
 
-//document.onload
+    document.getElementById('deobfuscate-button').addEventListener('click', (button) => 
+    {
+        console.log('clicked - deobfuscating...');
+
+        let textArea = document.getElementById('script-content');
+        let content = textArea.value || '';
+        let results = deobfuscate(content.split('\n'));
+        textArea.value = results.join('\n');
+    });
+});
