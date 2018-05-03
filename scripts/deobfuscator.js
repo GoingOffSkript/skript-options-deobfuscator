@@ -28,7 +28,7 @@ export const deobfuscate = (lines) =>
     return lines.map(line => line.replace(/\0/g, ''))       // Strip null characters.
         .map(line => line.replace(Patterns.COMMENT, ''))    // Strip comments.
         .map(line => determineScope(line, context))         // Record & replace options.
-        .filter(line => string && true);                    // Only include the line if it exists (i.e. not null)
+        .filter(line => line && true);                    // Only include the line if it exists (i.e. not null)
 }
 
 /**
