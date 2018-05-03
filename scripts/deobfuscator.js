@@ -4,12 +4,14 @@
 // Tested with Chrome v66.0.3359.139 (Official Build) (64-bit)
 
 const Patterns = 
-{
+{   
+    CONTROL_CHARACTERS: /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,
+    
     COMMENT: /(?:^|[^#])(#(?:$|[^#]).*)/,
 
-    SCOPE: /^[\0\s]*(?<scope>\w+).*:\s*$/,
+    SCOPE: /^\s*(?<scope>\w+).*:\s*$/,
 
-    OPTIONS_KEY_DEFINITION: /^[\0\t ]+(?<key>[^:]+):[\0\t ]*(?<value>.+)$/,
+    OPTIONS_KEY_DEFINITION: /^[\t ]+(?<key>[^:]+):[\t ]*(?<value>.+)$/,
 
     // Same options pattern as Skript: 
     // https://github.com/bensku/Skript/blob/400d668eac2be59eed1f31d08c5025b6e6b3f500/src/main/java/ch/njol/skript/ScriptLoader.java#L936
@@ -25,10 +27,10 @@ const Patterns =
 export const deobfuscate = (lines) => 
 {
     let context = {scope: '', keys: {}};
-    return lines.map(line => line.replace(/\0/g, ''))       // Strip null characters.
-        .map(line => line.replace(Patterns.COMMENT, ''))    // Strip comments.
-        .map(line => determineScope(line, context))         // Record & replace options.
-        .filter(line => line && true);                      // Only include the line if it exists (i.e. not null)
+    return lines.map(line => line.replace(Patterns.CONTROL_CHARACTERS, ''))     // Strip evil control characters.
+        .map(line => line.replace(Patterns.COMMENT, ''))                        // Strip comments.
+        .map(line => determineScope(line, context))                             // Record & replace options.
+        .filter(line => line && true);                                          // Only include the line if it exists (i.e. not null)
 }
 
 /**
@@ -38,11 +40,15 @@ export const deobfuscate = (lines) =>
  */
 const determineScope = (line, context) =>
 {
-    let match = line.match(Patterns.SCOPE);
-    if (match) { context.scope = match.groups.scope.toLowerCase(); }
+    let isOpeningNewScope = line.match(/^[^\t ]/);
+    if (isOpeningNewScope)
+    {
+        let match = line.match(Patterns.SCOPE);
+        context.scope = (match) ? match.groups.scope.toLowerCase() : '';
+    }
 
     let isWithinOptions = context.scope === 'options';
-    if (match) { return (isWithinOptions) ? null : line; }
+    if (isOpeningNewScope && isWithinOptions) { return null; }
 
     let handleScope = (isWithinOptions) ? handleOptionsScope : handleDefaultScope;
     return handleScope(line, context);
