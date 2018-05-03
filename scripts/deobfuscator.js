@@ -9,7 +9,7 @@ const Patterns =
 
     SCOPE: /^[\0\s]*(?<scope>\w+).*:\s*$/,
 
-    OPTIONS_KEY_DEFINITION: /^[\0\t ]+(?<key>[^:]+):(?: |\t)*(?<value>.+)$/,
+    OPTIONS_KEY_DEFINITION: /^[\0\t ]+(?<key>[^:]+):[\0\t ]*(?<value>.+)$/,
 
     // Same options pattern as Skript: 
     // https://github.com/bensku/Skript/blob/400d668eac2be59eed1f31d08c5025b6e6b3f500/src/main/java/ch/njol/skript/ScriptLoader.java#L936
@@ -28,7 +28,7 @@ export const deobfuscate = (lines) =>
     return lines.map(line => line.replace(/\0/g, ''))       // Strip null characters.
         .map(line => line.replace(Patterns.COMMENT, ''))    // Strip comments.
         .map(line => determineScope(line, context))         // Record & replace options.
-        .filter(line => line && true);                    // Only include the line if it exists (i.e. not null)
+        .filter(line => line && true);                      // Only include the line if it exists (i.e. not null)
 }
 
 /**
