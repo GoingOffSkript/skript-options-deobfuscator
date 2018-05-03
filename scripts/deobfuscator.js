@@ -19,37 +19,22 @@ const Patterns =
 }
 
 /**
- * @param {string[]} lines
- * @returns {string[]}
+ * @param {string[]} lines the obfuscated skript lines
+ * @returns {string[]} the resulting deobfuscated lines
  */
 export const deobfuscate = (lines) => 
 {
     let context = {scope: '', keys: {}};
-    return lines.map(stripNullCharacters).map(stripComments).map(line => determineScope(line, context)).filter(stringExists);
+    return lines.map(line => line.replace(/\0/g, ''))       // Strip null characters.
+        .map(line => line.replace(Patterns.COMMENT, ''))    // Strip comments.
+        .map(line => determineScope(line, context))         // Record & replace options.
+        .filter(line => string && true);                    // Only include the line if it exists (i.e. not null)
 }
 
 /**
- * @param {string} line 
- * @returns {string}
- */
-const stripComments = (line) => line.replace(Patterns.COMMENT, '');
-
-/**
- * @param {string} line 
- * @returns {string}
- */
-const stripNullCharacters = (line) => line.replace(/\0/g, '');
-
-/**
- * @param {string} string 
- * @returns {boolean}
- */
-const stringExists = (string) => string && true;
-
-/**
- * @param {string} line 
- * @param {*} context 
- * @returns {string}
+ * @param {string} line the current line
+ * @param {*} context mutable deobfuscation context
+ * @returns {string} the updated line or null
  */
 const determineScope = (line, context) =>
 {
@@ -64,9 +49,9 @@ const determineScope = (line, context) =>
 }
 
 /**
- * @param {string} line 
- * @param {*} context 
- * @returns {string}
+ * @param {string} line the current line
+ * @param {*} context mutable deobfuscation context
+ * @returns {string} null always: options are redundant since they're all replaced
  */
 const handleOptionsScope = (line, context) =>
 {
@@ -76,9 +61,9 @@ const handleOptionsScope = (line, context) =>
 }
 
 /**
- * @param {string} line 
- * @param {*} context 
- * @returns {string}
+ * @param {string} line the current line
+ * @param {*} context mutable deobfuscation context
+ * @returns {string} the current line with all existing options replaced
  */
 const handleDefaultScope = (line, context) => 
 {
