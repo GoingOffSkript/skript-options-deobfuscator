@@ -29,9 +29,15 @@ const SCRIPT_CONTENT = new IdentifiableElement('script-content');
 const UPLOAD_FILE_BUTTON = new IdentifiableElement('upload-file-button');
 
 const SAVE_AS_FILE_BUTTON = new IdentifiableElement('save-as-file-button');
-SAVE_AS_FILE_BUTTON.refresh = () => SAVE_AS_FILE_BUTTON.element.disabled = !SCRIPT_CONTENT.value
 
 const DEOBFUSCATE_BUTTON = new IdentifiableElement('deobfuscate-button');
+
+const refreshButtonUsablility = () => 
+{
+    let isContentAreaEmpty = !SCRIPT_CONTENT.value;
+    SAVE_AS_FILE_BUTTON.element.disabled = isContentAreaEmpty;
+    DEOBFUSCATE_BUTTON.element.disabled = isContentAreaEmpty;
+}
 
 //
 //  Setup event listeners.
@@ -51,7 +57,7 @@ document.addEventListener('readystatechange', () =>
         reader.addEventListener('load', () => 
         {
             SCRIPT_CONTENT.value = reader.result;
-            SAVE_AS_FILE_BUTTON.refresh();
+            refreshButtonUsablility();
         });
 
         reader.addEventListener('loadend', () => fileDialog.value = null);
@@ -66,17 +72,28 @@ document.addEventListener('readystatechange', () =>
 
     SAVE_AS_FILE_BUTTON.listen('click', () => 
     {
-        console.log('clicky');
+        console.log('Downloading...');
+
+        let content = SCRIPT_CONTENT.value;
+        let filetype = 'text/plain';
+        let blob = new Blob([content], {type: filetype});
+        let link = document.createElement('a');
+
+        link.download = 'deobfuscated.sk';
+        link.href = window.URL.createObjectURL(blob);
+        link.dataset.downloadurl = `${filetype}:${link.download}:${link.href}`;
+        link.click();
+        link.remove();
     });
     
     DEOBFUSCATE_BUTTON.listen('click', () => 
     {
         console.log('Deobfuscating...');
 
-        let content = SCRIPT_CONTENT.value || '';
+        let content = SCRIPT_CONTENT.value;
         let results = deobfuscate(content.split('\n'));
         SCRIPT_CONTENT.value = results.join('\n');
     });
 
-    SCRIPT_CONTENT.listen('input', SAVE_AS_FILE_BUTTON.refresh);
+    SCRIPT_CONTENT.listen('input', refreshButtonUsablility);
 });
