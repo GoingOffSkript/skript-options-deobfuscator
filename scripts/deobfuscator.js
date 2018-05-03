@@ -9,7 +9,7 @@ const Patterns =
 
     SCOPE: /^[\0\s]*(?<scope>\w+).*:\s*$/,
 
-    OPTIONS_KEY_DEFINITION: /(?:(?: |\t)+)(?<key>[^:]+):(?: |\t)*(?<value>.+)/,
+    OPTIONS_KEY_DEFINITION: /^[\0\t ]+(?<key>[^:]+):(?: |\t)*(?<value>.+)$/,
 
     // Same options pattern as Skript: 
     // https://github.com/bensku/Skript/blob/400d668eac2be59eed1f31d08c5025b6e6b3f500/src/main/java/ch/njol/skript/ScriptLoader.java#L936
@@ -25,7 +25,7 @@ const Patterns =
 export const deobfuscate = (lines) => 
 {
     let context = {scope: '', keys: {}};
-    return lines.map(stripComments).map(line => determineScope(line, context)).filter(line => line && true);
+    return lines.map(stripNullCharacters).map(stripComments).map(line => determineScope(line, context)).filter(stringExists);
 }
 
 /**
@@ -33,6 +33,18 @@ export const deobfuscate = (lines) =>
  * @returns {string}
  */
 const stripComments = (line) => line.replace(Patterns.COMMENT, '');
+
+/**
+ * @param {string} line 
+ * @returns {string}
+ */
+const stripNullCharacters = (line) => line.replace(/\0/g, '');
+
+/**
+ * @param {string} string 
+ * @returns {boolean}
+ */
+const stringExists = (string) => string && true;
 
 /**
  * @param {string} line 
@@ -62,7 +74,6 @@ const handleOptionsScope = (line, context) =>
     if (match) { context.keys[match.groups.key] = match.groups.value; }
     return null;
 }
- 
 
 /**
  * @param {string} line 
@@ -71,9 +82,6 @@ const handleOptionsScope = (line, context) =>
  */
 const handleDefaultScope = (line, context) => 
 {
-    console.log(`----- Updating placholders -----`);
-    console.log(`  LINE: '${line}'`);
-
     let options = line.match(Patterns.INLINE_OPTIONS_PLACEHOLDERS);
     if (!options) { return line; }
 
@@ -89,16 +97,11 @@ const handleDefaultScope = (line, context) =>
         if (!value)
         {
             let inner = placeholder.match(/\{@(?<within>\{@(?<key>.+?)\})/);
-            if (inner) 
-            {
-                placeholder = inner.groups.within;
-                key = inner.groups.key || '';
-                value = context.keys[key];
-            }
-            else
-            {
-                value = placeholder;
-            }
+            if (!inner) { return; } // OR there's no value for this placeholder anyway...
+            
+            placeholder = inner.groups.within;
+            key = inner.groups.key || '';
+            value = context.keys[key];
         }
         
         updated = updated.replace(placeholder, value);
