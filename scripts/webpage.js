@@ -22,21 +22,21 @@ class IdentifiableElement
     listen(event, callback) { this.element.addEventListener(event, () => callback(this.element)); }
 }
 
-const FILE_DIALOG = new IdentifiableElement('file-dialog');
+const fileDialog = new IdentifiableElement('file-dialog');
 
-const SCRIPT_CONTENT = new IdentifiableElement('script-content');
+const scriptContent = new IdentifiableElement('script-content');
 
-const UPLOAD_FILE_BUTTON = new IdentifiableElement('upload-file-button');
+const uploadFileButton = new IdentifiableElement('upload-file-button');
 
-const SAVE_AS_FILE_BUTTON = new IdentifiableElement('save-as-file-button');
+const saveAsFileButton = new IdentifiableElement('save-as-file-button');
 
-const DEOBFUSCATE_BUTTON = new IdentifiableElement('deobfuscate-button');
+const deobfuscateButton = new IdentifiableElement('deobfuscate-button');
 
 const refreshButtonUsablility = () => 
 {
-    let isContentAreaEmpty = !SCRIPT_CONTENT.value;
-    SAVE_AS_FILE_BUTTON.element.disabled = isContentAreaEmpty;
-    DEOBFUSCATE_BUTTON.element.disabled = isContentAreaEmpty;
+    let isContentAreaEmpty = !scriptContent.value;
+    saveAsFileButton.element.disabled = isContentAreaEmpty;
+    deobfuscateButton.element.disabled = isContentAreaEmpty;
 }
 
 //
@@ -47,34 +47,34 @@ document.addEventListener('readystatechange', () =>
 {
     if (document.readyState !== 'complete') { return; }
 
-    FILE_DIALOG.listen('change', (fileDialog) => 
+    fileDialog.listen('change', (dialog) => 
     {
-        let file = fileDialog.files[0];
+        let file = dialog.files[0];
         if (!file) { return; }
 
         let reader = new FileReader();
 
         reader.addEventListener('load', () => 
         {
-            SCRIPT_CONTENT.value = reader.result;
+            scriptContent.value = reader.result;
             refreshButtonUsablility();
         });
 
-        reader.addEventListener('loadend', () => fileDialog.value = null);
+        reader.addEventListener('loadend', () => dialog.value = null);
         reader.readAsText(file);
     });
 
-    UPLOAD_FILE_BUTTON.listen('click', () => 
+    uploadFileButton.listen('click', () => 
     {
         console.log('Getting existing file...');
-        FILE_DIALOG.element.click();
+        fileDialog.element.click();
     });
 
-    SAVE_AS_FILE_BUTTON.listen('click', () => 
+    saveAsFileButton.listen('click', () => 
     {
         console.log('Downloading...');
 
-        let content = SCRIPT_CONTENT.value;
+        let content = scriptContent.value;
         let filetype = 'text/plain';
         let blob = new Blob([content], {type: filetype});
         let link = document.createElement('a');
@@ -86,14 +86,14 @@ document.addEventListener('readystatechange', () =>
         link.remove();
     });
     
-    DEOBFUSCATE_BUTTON.listen('click', () => 
+    deobfuscateButton.listen('click', () => 
     {
         console.log('Deobfuscating...');
 
-        let content = SCRIPT_CONTENT.value;
+        let content = scriptContent.value;
         let results = deobfuscate(content.split('\n'));
-        SCRIPT_CONTENT.value = results.join('\n');
+        scriptContent.value = results.join('\n');
     });
 
-    SCRIPT_CONTENT.listen('input', refreshButtonUsablility);
+    scriptContent.listen('input', refreshButtonUsablility);
 });

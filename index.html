@@ -8,15 +8,23 @@
     <script type="module" src="scripts/webpage.js"></script>
 </head>
 <body>
-    <div class="title">
-        <h1>Skript Options Deobfuscator</h1>
-        <input type="file" id="file-dialog" hidden=true accept=".sk">
-        <button type="button" id="upload-file-button">Use an existing file...</button>
-        <button type="button" id="save-as-file-button" disabled=true>Save as...</button>
-        <button type="button" id="deobfuscate-button" disabled=true>Deobfuscate!</button>
+    <div class="header content">
+        <div class="display-area">
+            <div class="title">
+                <h1>Skript Options Deobfuscator</h1>
+            </div>
+
+            <div class="button-menu">
+                <input type="file" id="file-dialog" hidden=true accept=".sk">
+                <button type="button" id="upload-file-button">Use an existing file...</button>
+                <button type="button" id="save-as-file-button" disabled=true>Save as...</button>
+                <button type="button" id="deobfuscate-button" disabled=true>Deobfuscate!</button>
+            </div>
+        </div>
     </div>
-    <div class="body">
-        <textarea id="script-content" autofocus=true cols=150 rows=50 ></textarea>
+    <div class="slip-under"></div>
+    <div class="body content">
+        <textarea id="script-content" class="display-area" autofocus=true></textarea>
     </div>
 </body>
 </html>
